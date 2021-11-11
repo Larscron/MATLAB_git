@@ -4,7 +4,9 @@ clear all; close all; clc;
 % there is something strange going on with the equations for h(5) and H52 and potentially h(3) and H42 as well 
 
 % declare the number of buses
-busCase=1401;
+busCase=14;
+
+run MP_data_extract; 
 
 % get our case data form the function files
 lineMtx=lineData(busCase);

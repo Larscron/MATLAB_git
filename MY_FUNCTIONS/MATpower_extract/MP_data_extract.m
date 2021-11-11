@@ -142,5 +142,7 @@ b_bus_sh_Mtx=[busnum,b_bus_sh];
 % in the end, we need to arange the meassurement data as:
 %         |Msnt |Type | Value | From | To | Rii | 
 
+
+% clear all variables except the relevant matrices
 clearvars -except measMtx lineMtx b_bus_sh
 
