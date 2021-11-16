@@ -11,27 +11,27 @@ run MP_data_extract;
 % get our case data form the function files
 lineMtx=lineData(busCase);
 %busMtx=busData(busCase);
-mesMtx=zData(busCase);
+measMtx=zData(busCase);
 
 % Measurement Error matrix
 if busCase==6
-    stdev=abs(mesMtx(:,3))./100;
+    stdev=abs(measMtx(:,3))./100;
     stdev_sqr=stdev.^2;
     Ri=diag(stdev_sqr); % declaring the R matrix
 else
-    Ri = diag(mesMtx(:,6));
+    Ri = diag(measMtx(:,6));
 end
 
 % from and two 
 fb = lineMtx(:,1);                  % From bus number...
 tb = lineMtx(:,2);                  % To bus number...
-fb_mes = mesMtx(:,4);
-tb_mes = mesMtx(:,5);
+fb_mes = measMtx(:,4);
+tb_mes = measMtx(:,5);
 
 nbus = max(max(fb),max(tb));        % no. of buses...
 nbra = length(fb);                  % no. of branch
 
-z = mesMtx(:,3);                    % measurements data
+z = measMtx(:,3);                    % measurements data
 V = ones(nbus,1);                   % we use a flat start even though we have some (1) V measurements
 thet = zeros(nbus,1);               % Initialize the bus angles..
 E = [thet(2:end); V];               % State Vector..
@@ -45,7 +45,7 @@ a=aMtx(lineMtx);                    % the A matrix procedure would be dependent 
 
 % bus and measurement type
 %busType=busMtx(:,2); % not used...
-mesType=mesMtx(:,2);
+mesType=measMtx(:,2);
 
 vi  = find(mesType == 1); % Index of voltage magnitude measurements..
 pin = find(mesType == 2); % Index of real power injection measurements..
@@ -279,7 +279,11 @@ while ((maxerror > tol) && it < 10 )
     
     
     % Measurement Jacobian, H..
-    H = [H11 H12; H21 H22; H31 H32; H41 H42; H51 H52];
+    H =[H11 H12; 
+        H21 H22;
+        H31 H32;
+        H41 H42;
+        H51 H52];
     
     % Gain Matrix, Gm..
     Gm = H'*inv(Ri)*H;

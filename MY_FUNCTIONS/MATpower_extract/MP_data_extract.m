@@ -7,7 +7,6 @@ res=runpf(mpc);
 
 %% Measurement data
 
-% we still have not finished the meas matrix, so we will start with that
 busnum  =res.bus(:,1);
 bustype =res.bus(:,2); % 1=load bus, 2=gen bus, 3=ref bus
 P_dis   =res.bus(:,3); % P power distributed / sent out form bus
