@@ -6,12 +6,12 @@ clear all; close all; clc;
 % declare the number of buses
 busCase=14;
 
-run MP_data_extract; 
+% run MP_data_extract; 
 
 % get our case data form the function files
-lineMtx=lineData(busCase);
+lineMtx=extr_line_mtx(busCase);
 %busMtx=busData(busCase);
-measMtx=zData(busCase);
+measMtx=extr_meas_mtx(busCase);
 
 % Measurement Error matrix
 if busCase==6
@@ -19,7 +19,9 @@ if busCase==6
     stdev_sqr=stdev.^2;
     Ri=diag(stdev_sqr); % declaring the R matrix
 else
-    Ri = diag(measMtx(:,6));
+    stdev=measMtx(:,6);
+    stdev_sqr=stdev.^2;
+    Ri = diag(stdev_sqr);
 end
 
 % from and two 
@@ -101,10 +103,7 @@ while ((maxerror > tol) && it < 10 )
         k = fb_mes(qf(i));
         m = tb_mes(qf(i));
         thet_km=thet(k)-thet(m);
-        % i do not understand why the commented out equation is not correct, 
-        % but it is the active equation that makes the system converge to the correct values
         h5(i) = -(a(k,m)*V(k))^2*(b(k,m)+bsh(k,m))   +(a(k,m)*a(m,k)*V(k)*V(m))*b(k,m)*cos(thet_km)  -(a(k,m)*a(m,k)*V(k)*V(m))*g(k,m)*sin(thet_km);
-        %h5(i) = -a(k,m)*V(k)^2*(b(k,m)+bsh(k,m))   +(a(k,m)*a(m,k)*V(k)*V(m))*b(k,m)*cos(thet_km)  -(a(k,m)*a(m,k)*V(k)*V(m))*g(k,m)*sin(thet_km);
     end
     
     h = [h1; h2; h3; h4; h5];
@@ -121,7 +120,7 @@ while ((maxerror > tol) && it < 10 )
     for k = 1:nvi
         for m = 1:nbus
             if m == k
-                H12(k,m) = 1;
+                H12(k,m) = 1;                                               %ERROR FOUND HERE
             end
         end
     end
@@ -257,7 +256,7 @@ while ((maxerror > tol) && it < 10 )
     end
     
     % H52 - Derivative of Reactive Power Flows with V..
-    H52 = zeros(nqf,nbus);
+    H52 = zeros(nqf,nbus);                                                  % THERE IS NO THET DECLARATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     for i = 1:nqf
         k = fb_mes(qf(i));
         m = tb_mes(qf(i));

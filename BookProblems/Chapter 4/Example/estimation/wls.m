@@ -1,5 +1,5 @@
 % Power System State Estimation using Weighted Least Square Method..
-
+clc; clear all;
 num = 30; % IEEE - 14 or IEEE - 30 bus system..(for IEEE-14 bus system replace 30 by 14)...
 ybus = ybusppg(num); % Get YBus..
 zdata = zdatas(num); % Get Measurement data..

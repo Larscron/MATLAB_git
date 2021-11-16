@@ -1,7 +1,7 @@
 %% h() calculations
 clear all; close all; clc
 
-nbus=5;
+nbus=14;
 %nbus=14;
 
 measMtx=extr_meas_mtx(nbus);
@@ -62,8 +62,6 @@ thet=stateMtx(:,2);
             thet_km=thet(k)-thet(m);
             h2(i) = h2(i) +     (a(k,m)*V(k))^2*g(k,m)      -(a(k,m)*a(m,k)*V(k)*V(m))*g(k,m)*cos(thet_km)      -(a(k,m)*a(m,k)*V(k)*V(m))*b(k,m)*sin(thet_km);
         end
-        P_inj(i,1)=h2(i);   % P injection
-        P_inj(i,2)=i;       % bus
     end
     
     for i = 1:nqi           % for the reactive power injection measurements
@@ -73,9 +71,6 @@ thet=stateMtx(:,2);
             h3(i) = h3(i) -(a(k,m)*V(k))^2*(b(k,m)+bsh(k,m))   +(a(k,m)*a(m,k)*V(k)*V(m))*b(k,m)*cos(thet_km)  -(a(k,m)*a(m,k)*V(k)*V(m))*g(k,m)*sin(thet_km);
         end
         h3(i) = h3(i) - V(k)^2*b_bus_sh(k);
-        
-        Q_inj(i,1)=h2(i);   % Q injection
-        Q_inj(i,2)=i;       % bus
     end
     
     for i = 1:npf           % for the real power flow measurements
@@ -83,22 +78,13 @@ thet=stateMtx(:,2);
         m = tb_mes(pf(i));
         thet_km=thet(k)-thet(m);
         h4(i) =                 (a(k,m)*V(k))^2*g(k,m)      -(a(k,m)*a(m,k)*V(k)*V(m))*g(k,m)*cos(thet_km)      -(a(k,m)*a(m,k)*V(k)*V(m))*b(k,m)*sin(thet_km);
-        
-        P_flo(i,1)=h4(i);   % P injection
-        P_flo(i,2)=k;       % from bus
-        P_flo(i,3)=m;       % to bus
     end
     
     for i = 1:nqf           % for the reactive power flow measurements
         k = fb_mes(qf(i));
         m = tb_mes(qf(i));
         thet_km=thet(k)-thet(m);
-        
         h5(i) = -(a(k,m)*V(k))^2*(b(k,m)+bsh(k,m))   +(a(k,m)*a(m,k)*V(k)*V(m))*b(k,m)*cos(thet_km)  -(a(k,m)*a(m,k)*V(k)*V(m))*g(k,m)*sin(thet_km);
-
-        Q_flo(i,1)=h5(i);   % P injection
-        Q_flo(i,2)=k;       % from bus
-        Q_flo(i,3)=m;       % to bus
     end
     
 % multiplying the power calculations with the base (100 MVA)

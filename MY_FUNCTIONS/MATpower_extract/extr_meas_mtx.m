@@ -69,7 +69,7 @@ P_bus_to   = zeros(length(busnum),1);       % ther is not to bus so it is set to
 Q_bus_to   = zeros(length(busnum),1);
 % combine each of the vectors to a new measurement matrix
 Pnet = [P_bus_meas_type, P_net, P_bus_from, P_bus_to];
-Qnet = [Q_bus_meas_type, Q_net, Q_bus_from, P_bus_to];
+Qnet = [Q_bus_meas_type, Q_net, Q_bus_from, Q_bus_to];
 
 % power flow data
 fbus=res.branch(:,1);   % from bus
@@ -100,8 +100,11 @@ numMeas=numMeas(1);
 measurment = (1:numMeas)';
 measMtx=[measurment, measMtx];
 
+% add Rii data (STdev^2)
+measMtx=add_Rii(measMtx);
+
 % add standard deviation to each measurement
-measMtx=add_stdev(measMtx,1,3); % adds a column with the sandard deviation of 1% of each measurment. The measuremnts are located in the 3rd column 
+%measMtx=add_stdev(measMtx,1,3); % adds a column with the sandard deviation of 1% of each measurment. The measuremnts are located in the 3rd column 
 
 end
 
