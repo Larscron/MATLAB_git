@@ -1,7 +1,7 @@
 %% h() calculations
 clear all; close all; clc
 
-nbus=30;
+nbus=14;
 %nbus=14;
 
 measMtx=extr_meas_mtx(nbus);
@@ -45,21 +45,12 @@ nqi = length(qin); % Number of Reactive Power Injection measurements..
 npf = length(pf); % Number of Real Power Flow measurements..
 nqf = length(qf); % Number of Reactive Power Flow measurements..
 
-z((nvi+1):length(z))=z((nvi+1):length(z))./100; % the power measurements need to be scaled down !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! implement this inside extr_meas_mtx
-
-if 0 % this section is turned off for Jacobian testing
-    %updating the stat variables with the finall MATPower values
-    stateMtx=extr_stat_mtx(nbus);
-    V = stateMtx(:,1);
-    thet = stateMtx(:,2);
-end
-
 it = 1;
 tol = 1e-5;
 maxerror = 1;
 
 
-while ((maxerror > tol) && it < 6 )
+while ((maxerror > tol) && it < 10 )
 
 %Measurement Function, h
     h1 = V(fb_mes(vi),1);   % Voltage values
@@ -280,10 +271,14 @@ while ((maxerror > tol) && it < 6 )
     maxerror = max(abs(dE));
 end
 it=it-1;
+
 fprintf('%i Iterations were completed\n',it)
 if maxerror < tol
-    fprintf('THERE WAS CONVERGENCE!!!\n')
     printStateVar(V,thet)
+    print_comp(V,thet)
+    fprintf('THERE WAS CONVERGENCE!!!\n')
+    fprintf('%i Iterations were completed\n',it)
+    fprintf('The maximum remaining error is:\n%.14f.',max(abs(dE)))
 else
     fprintf('there was no convergence :(\n')
 end

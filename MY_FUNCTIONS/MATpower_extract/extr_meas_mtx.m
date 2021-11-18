@@ -106,5 +106,11 @@ measMtx=add_Rii(measMtx);
 % add standard deviation to each measurement
 %measMtx=add_stdev(measMtx,1,3); % adds a column with the sandard deviation of 1% of each measurment. The measuremnts are located in the 3rd column 
 
+% scale down power measurements
+P_meas=find(measMtx(:,2)~=1);
+measMtx(P_meas,3)=measMtx(P_meas,3)./100; % this might have ruined the compatibility with test_h_x_vector
+
+fprintf('test this')
+
 end
 
