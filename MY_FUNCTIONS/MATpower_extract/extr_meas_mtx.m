@@ -100,11 +100,6 @@ numMeas=numMeas(1);
 measurment = (1:numMeas)';
 measMtx=[measurment, measMtx];
 
-% add Rii data (STdev^2)
-measMtx=add_Rii(measMtx);
-
-% add standard deviation to each measurement
-%measMtx=add_stdev(measMtx,1,3); % adds a column with the sandard deviation of 1% of each measurment. The measuremnts are located in the 3rd column 
 
 % scale down power measurements
 P_meas=find(measMtx(:,2)~=1);

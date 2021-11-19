@@ -7,7 +7,6 @@ Rii=zeros(nmes,1);
 mes_type=mtx(:,2);
 for i=1:nmes
     switch mes_type(i)
-        
         case 1 %voltage meas
             Rii(i)=9e-4;
         case 2 %Pinj

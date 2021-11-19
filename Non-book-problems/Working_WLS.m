@@ -1,25 +1,27 @@
-%% h() calculations
+%% Weighted Least Square Calculations
 clear all; close all; clc
 
-nbus=14;
-%nbus=14;
+nbus=5;
+pctSTdev=0.5; 
 
 measMtx=extr_meas_mtx(nbus);
 lineMtx=extr_line_mtx(nbus);
 
 
-fb = lineMtx(:,1);                  % From bus number...
-tb = lineMtx(:,2);                  % To bus number...
-fb_mes = measMtx(:,4);              % Form bus, measurement
-tb_mes = measMtx(:,5);              % To bus, measurement
+fb = lineMtx(:,1);                      % From bus number...
+tb = lineMtx(:,2);                      % To bus number...
+fb_mes = measMtx(:,4);                  % Form bus, measurement
+tb_mes = measMtx(:,5);                  % To bus, measurement
 
-z = measMtx(:,3);                    % measurements data
+z = measMtx(:,3);                       % measurements data
+measMtx=add_stdev(measMtx,pctSTdev,3);  % adds a column with the sandard deviation of 1% of each measurment. The measuremnts are located in the 3rd column 
+measMtx(:,6)=measMtx(:,6).^2;           % squaring the standard deviation to get Rii
+R=diag(measMtx(:,6));                  % adding the square of the standard deviation of the measurements
+z=add_nor_error(z,pctSTdev);            % adds a normal error of proportional to the percentage standard deviation to all measurments
 
-V = ones(nbus,1);                   % we use a flat start even though we have some (1) V measurements
-thet = zeros(nbus,1);               % Initialize the bus angles.
-E = [thet(2:end); V];               % State Vector..
-
-Ri=diag(measMtx(:,6));              % adding the square of the standard deviation of the measurements
+V = ones(nbus,1);                       % we use a flat start even though we have some (1) V measurements
+thet = zeros(nbus,1);                   % Initialize the bus angles.
+x = [thet(2:end); V];                   % State Vector..
 
 y=smally(lineMtx);
 g=real(y);
@@ -253,23 +255,38 @@ while ((maxerror > tol) && it < 10 )
         H51 H52];
     
     % Gain Matrix, Gm..
-    Gm = H'*inv(Ri)*H;
+    Gm = H'*inv(R)*H;
     
     % Residue..
-    r = z - h;
+    del_z = z - h;
     
-    %Objective Function..
-    J = sum(inv(Ri)*r.^2);
+    % Objective Function..
+    J = sum(inv(R)*del_z.^2);
+    
+    % The projection matrix
+    fprintf('The hat matrix is:\n')
+    K=H*inv(Gm)*transpose(H)*inv(R);
+    % Residual vector?
     
     % State Vector..
-    dE = inv(Gm)*(H'*inv(Ri)*r);
-    E = E + dE;
-    thet(2:end) = E(1:nbus-1);
-    V = E(nbus:end);
+    del_x_hat = inv(Gm)*(H'*inv(R)*del_z);
+    x = x + del_x_hat;
+    thet(2:end) = x(1:nbus-1);
+    V = x(nbus:end);
     it = it + 1;
-    maxerror = max(abs(dE));
+    maxerror = max(abs(del_x_hat));
 end
 it=it-1;
+
+% This is where GE analysis will ocure
+K=H*inv(Gm)*transpose(H)*inv(R);    % The projection matrix
+I=eye(length(K));                   % Identity matrix of smae dimensions as K
+S=I-K;                              % Residual sensitivity matrix
+R=R;                                % Covariances (along the diagonal)
+Om=S*R;                             % Covariance matrix
+
+del_z_hat=H*del_x_hat;
+r=del_z-del_z_hat; % residuals
 
 fprintf('%i Iterations were completed\n',it)
 if maxerror < tol
@@ -277,7 +294,9 @@ if maxerror < tol
     print_comp(V,thet)
     fprintf('THERE WAS CONVERGENCE!!!\n')
     fprintf('%i Iterations were completed\n',it)
-    fprintf('The maximum remaining error is:\n%.14f.',max(abs(dE)))
+    fprintf('The maximum remaining error is:\n%.14f\n',max(abs(del_x_hat)))
+    fprintf('And the J value was:\n')
+    J
 else
     fprintf('there was no convergence :(\n')
 end
