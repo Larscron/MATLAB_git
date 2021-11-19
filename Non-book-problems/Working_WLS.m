@@ -14,7 +14,6 @@ fb_mes = measMtx(:,4);              % Form bus, measurement
 tb_mes = measMtx(:,5);              % To bus, measurement
 
 z = measMtx(:,3);                    % measurements data
-%z(6:length(z))=z(6:length(z))./100; % the power measurements need to be scaled down 
 
 V = ones(nbus,1);                   % we use a flat start even though we have some (1) V measurements
 thet = zeros(nbus,1);               % Initialize the bus angles.
