@@ -1,8 +1,8 @@
 %% Weighted Least Square Calculations
 clear all; close all; clc
 
-nbus=5;
-pctSTdev=0.5; 
+nbus=14;
+pctSTdev=1; 
 
 measMtx=extr_meas_mtx(nbus);
 lineMtx=extr_line_mtx(nbus);
@@ -15,9 +15,11 @@ tb_mes = measMtx(:,5);                  % To bus, measurement
 
 z = measMtx(:,3);                       % measurements data
 measMtx=add_stdev(measMtx,pctSTdev,3);  % adds a column with the sandard deviation of 1% of each measurment. The measuremnts are located in the 3rd column 
-measMtx(:,6)=measMtx(:,6).^2;           % squaring the standard deviation to get Rii
-R=diag(measMtx(:,6));                  % adding the square of the standard deviation of the measurements
+stdev=measMtx(:,6);
+stdev2=stdev.^2;           % squaring the standard deviation to get Rii
+R=diag(stdev2);                   % adding the square of the standard deviation of the measurements
 z=add_nor_error(z,pctSTdev);            % adds a normal error of proportional to the percentage standard deviation to all measurments
+[z,GE_loc]=add_GE(z,stdev);
 
 V = ones(nbus,1);                       % we use a flat start even though we have some (1) V measurements
 thet = zeros(nbus,1);                   % Initialize the bus angles.
@@ -32,6 +34,7 @@ a=aMtx(lineMtx);                    % the A matrix procedure would be dependent 
 
 % bus and measurement type
 %busType=busMtx(:,2); % not used...
+nmeas=length(measMtx(:,2));
 mesType=measMtx(:,2);
 vi  = find(mesType == 1); % Index of voltage magnitude measurements..
 vi_bus = fb_mes(vi);
@@ -47,7 +50,7 @@ npf = length(pf); % Number of Real Power Flow measurements..
 nqf = length(qf); % Number of Reactive Power Flow measurements..
 
 it = 1;
-tol = 1e-5;
+tol = 1e-8;
 maxerror = 1;
 
 
@@ -264,7 +267,6 @@ while ((maxerror > tol) && it < 10 )
     J = sum(inv(R)*del_z.^2);
     
     % The projection matrix
-    fprintf('The hat matrix is:\n')
     K=H*inv(Gm)*transpose(H)*inv(R);
     % Residual vector?
     
@@ -278,6 +280,10 @@ while ((maxerror > tol) && it < 10 )
 end
 it=it-1;
 
+
+% clear all variables except the relevant matrices
+ clearvars -except Gm H R thet V it maxerror tol del_x_hat del_z z h nbus nmeas n J GE_loc stdev
+
 % This is where GE analysis will ocure
 K=H*inv(Gm)*transpose(H)*inv(R);    % The projection matrix
 I=eye(length(K));                   % Identity matrix of smae dimensions as K
@@ -288,15 +294,41 @@ Om=S*R;                             % Covariance matrix
 del_z_hat=H*del_x_hat;
 r=del_z-del_z_hat; % residuals
 
-fprintf('%i Iterations were completed\n',it)
-if maxerror < tol
-    printStateVar(V,thet)
-    print_comp(V,thet)
-    fprintf('THERE WAS CONVERGENCE!!!\n')
-    fprintf('%i Iterations were completed\n',it)
-    fprintf('The maximum remaining error is:\n%.14f\n',max(abs(del_x_hat)))
-    fprintf('And the J value was:\n')
-    J
+% J index detection
+GE = J_ind_det(J, nbus, nmeas, 0.05, GE_loc);
+% r_max^N
+r_N=abs(del_z)./(sqrt(diag(Om)));
+k = find(r_N == (max(r_N)));
+beta=3;
+if r_N(k)>beta
+    fprintf('The r_max^N test predicts a GE at measurement:\n%i\n',k)
 else
-    fprintf('there was no convergence :(\n')
+    fprintf('The r_max^N test DOES NOT predicts any GEs\n')
 end
+
+% b^hat test
+r_N=abs(del_z)./(sqrt(diag(Om)));
+k = find(r_N == (max(r_N)));
+b_hat=(stdev./(sqrt(diag(Om)))).*r_N;
+c=4;
+if b_hat(k)>c
+    fprintf('The b^hat test predicts a GE at measurement:\n%i\n',k)
+else
+    fprintf('The b^hat test DOES NOT predicts any GEs\n')
+end
+
+J;
+
+
+% fprintf('%i Iterations were completed\n',it)
+% if maxerror < tol
+%     printStateVar(V,thet)
+%     print_comp(V,thet)
+%     fprintf('THERE WAS CONVERGENCE!!!\n')
+%     fprintf('%i Iterations were completed\n',it)
+%     fprintf('The maximum remaining error is:\n%.14f\n',max(abs(del_x_hat)))
+%     fprintf('And the J value was:\n')
+%     J
+% else
+%     fprintf('there was no convergence :(\n')
+% end

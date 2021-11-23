@@ -3,11 +3,11 @@ function [ mtxWithStdev ] = add_stdev( mtx, stdevPct, measCol )
 %   this adds a standard deviation of 1% of the measurement value
 meas=mtx(:,measCol);
 stdev=abs((stdevPct/100).*meas); % creates a vector with the numerical stdev values. Abs is used becaus stdev is not signed
-zeroPoints=find(stdev<1e-4);
+zeroPoints=find(stdev<5e-4); % this might need some more tuning
 
 mes_type=mtx(:,2); % hard coded where the measurements are
 for i=1:length(zeroPoints)
-    stdev(zeroPoints(i))=0.001;
+%    stdev(zeroPoints(i))=0.001;
     switch mes_type(i)
         case 1 %voltage meas
             stdev(zeroPoints(i))=3e-2;
