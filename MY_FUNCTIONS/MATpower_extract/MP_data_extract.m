@@ -2,7 +2,8 @@
 % this script is used to extract and re-organize matpower data outputs
 clear all; clc;
 mpc=loadcase(case14); % this is where we declare which case we want to look at
-res=runpf(mpc);
+mpopt = mpoption('verbose', 0, 'out.all', 0);
+res=runpf(mpc, mpopt);
 % starting with power flow data
 
 %% Measurement data

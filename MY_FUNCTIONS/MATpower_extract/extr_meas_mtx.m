@@ -1,19 +1,20 @@
 function [measMtx] = extr_meas_mtx(busNum)
 %EXTR_MEAS_MTX Summary of this function goes here
 %   Detailed explanation goes here
+mpopt = mpoption('verbose', 0, 'out.all', 0);
 switch busNum
     case 30   
         mpc=loadcase(case30); % this is where we declare which case we want to look at
-        res=runpf(mpc);
+        res=runpf(mpc,mpopt);
     case 14   
         mpc=loadcase(case14); % this is where we declare which case we want to look at
-        res=runpf(mpc);
+        res=runpf(mpc,mpopt);
     case 9
         mpc=loadcase(case9); % this is where we declare which case we want to look at
-        res=runpf(mpc);
+        res=runpf(mpc,mpopt);
     case 5
         mpc=loadcase(case5); % this is where we declare which case we want to look at
-        res=runpf(mpc);
+        res=runpf(mpc,mpopt);
     otherwise
         disp ('We do not have this matrix saved')
         quit
@@ -104,8 +105,6 @@ measMtx=[measurment, measMtx];
 % scale down power measurements
 P_meas=find(measMtx(:,2)~=1);
 measMtx(P_meas,3)=measMtx(P_meas,3)./100; % this might have ruined the compatibility with test_h_x_vector
-
-fprintf('test this')
 
 end
 

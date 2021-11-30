@@ -6,7 +6,7 @@ pctSTdev=1;
 
 measMtx=extr_meas_mtx(nbus);
 lineMtx=extr_line_mtx(nbus);
-
+b_bus_sh=extr_bus_sh_vec(nbus);             % this on is empty for this example
 
 fb = lineMtx(:,1);                      % From bus number...
 tb = lineMtx(:,2);                      % To bus number...
@@ -16,8 +16,8 @@ tb_mes = measMtx(:,5);                  % To bus, measurement
 z = measMtx(:,3);                       % measurements data
 measMtx=add_stdev(measMtx,pctSTdev,3);  % adds a column with the sandard deviation of 1% of each measurment. The measuremnts are located in the 3rd column 
 stdev=measMtx(:,6);
-stdev2=stdev.^2;           % squaring the standard deviation to get Rii
-R=diag(stdev2);                   % adding the square of the standard deviation of the measurements
+stdev2=stdev.^2;                        % squaring the standard deviation to get Rii
+R=diag(stdev2);                         % adding the square of the standard deviation of the measurements
 z=add_nor_error(z,pctSTdev);            % adds a normal error of proportional to the percentage standard deviation to all measurments
 [z,GE_loc]=add_GE(z,stdev);
 
@@ -29,7 +29,7 @@ y=smally(lineMtx);
 g=real(y);
 b=imag(y);
 bsh=lineShMtx(lineMtx);
-b_bus_sh=extr_bus_sh_vec(nbus);             % this on is empty for this example
+%b_bus_sh=extr_bus_sh_vec(nbus);             % this on is empty for this example
 a=aMtx(lineMtx);                    % the A matrix procedure would be dependent on which side the taps are located
 
 % bus and measurement type
@@ -62,8 +62,7 @@ while ((maxerror > tol) && it < 10 )
     h3 = zeros(nqi,1);      % Q injection
     h4 = zeros(npf,1);      % P flow
     h5 = zeros(nqf,1);      % Q flow
-    
-    
+     
     for i = 1:npi           % for the real power injection measurements
         k = fb_mes(pin(i));
         for m = 1:nbus
@@ -317,7 +316,7 @@ else
     fprintf('The b^hat test DOES NOT predicts any GEs\n')
 end
 
-J;
+
 
 
 % fprintf('%i Iterations were completed\n',it)
