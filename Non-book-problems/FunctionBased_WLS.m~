@@ -18,11 +18,9 @@ measMtx(:,3)=add_nor_error(measMtx(:,3),pctSTdev);  % adds a normal error of pro
 [measMtx(:,3),GE_loc_true]=add_GE(measMtx(:,3),stdev);
 
 % WLS state estimation and GE Processing
-%WLSres=WLS_function( nbus, measMtx, lineMtx, b_bus_sh);
 
 
 for it=1:1000 % will loop unitl break or 1000 loops
-% WLS state estimation and GE Processing
 WLSres=WLS_function( nbus, measMtx, lineMtx, b_bus_sh);
 
 H=WLSres.H; G=WLSres.G; R=WLSres.R; J=WLSres.J;
@@ -55,4 +53,3 @@ if GE_loc_guess==0
     break
 end
 end
-%}

@@ -285,18 +285,17 @@ WLSres.Nmeas=nmeas; % could probably be moved outside of function
 %WLSres.GE_loc=GE_loc; %just so that I will know for testing
 
 if 1
+fprintf('%i Iterations were completed\n',it)
+if maxerror < tol
+    %printStateVar(V,thet)
+    print_comp(V,thet)
+    fprintf('THERE WAS CONVERGENCE!!!\n')
     fprintf('%i Iterations were completed\n',it)
-    if maxerror < tol
-        %printStateVar(V,thet)
-        print_comp(V,thet)
-        fprintf('THERE WAS CONVERGENCE!!!\n')
-        fprintf('%i Iterations were completed\n',it)
-        fprintf('The velue of J was:\n%f\n',J)
-        %fprintf('The maximum remaining error is:\n%.14f\n',max(abs(del_x_hat)))
-
-    else
-        fprintf('there was no convergence :(\n')
-    end
+    fprintf('The velue of J was:\n%f\n',J)
+    %fprintf('The maximum remaining error is:\n%.14f\n',max(abs(del_x_hat)))
+    
+else
+    fprintf('there was no convergence :(\n')
 end
 
 end
